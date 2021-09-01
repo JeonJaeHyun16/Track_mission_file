@@ -1,0 +1,13 @@
+<launch>
+
+     <!-- lava_lane-->
+    <node pkg="stauto_control" type="Track_jjh_lane.py" name="lava_lane" >
+        
+    </node>
+
+    <!-- lava_speed -->
+    <node pkg="stauto_control" type="Track_jjh_modi_lanenet.py" name="ros_track_consumer" >
+        
+    </node>
+
+</launch>
