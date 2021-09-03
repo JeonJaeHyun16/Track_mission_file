@@ -58,8 +58,8 @@ class Track_lanenet_detector():
         sub_boundingBoxes = rospy.Subscriber(self.boundingboxes_topic, BoundingBoxes, self.BoundingBoxes_callback)
         self.pub_image = rospy.Publisher(self.output_image, Image, queue_size=1)
         self.pub_ist_image = rospy.Publisher(self.output_image, Image, queue_size=1)
-        self.Blue_x_cen,self.Blue_y_cen = [],[] #????
-        self.Yello_x_cen,self.Yello_y_cen = [],[] #???
+        self.Blue_x_cen,self.Blue_y_cen = [],[] 
+        self.Yello_x_cen,self.Yello_y_cen = [],[] 
 
     def BoundingBoxes_callback(self, data):
         BoundingBoxes = []
@@ -87,14 +87,11 @@ class Track_lanenet_detector():
         Blue_y_cen = self.Blue_y_cen
         Yello_x_cen = self.Yello_x_cen
         Yello_y_cen = self.Yello_y_cen
-        Blue_x_cen.sort()
-        Blue_y_cen.sort()
-        Yello_x_cen.sort()
-        Yello_y_cen.sort()
+        Blue_x_cen,Blue_y_cen = sort_x_y_pixel(Blue_x_cen,Blue_y_cen)
+        Yello_x_cen,Yello_y_cen = sort_x_y_pixel(Yello_x_cen,Yello_y_cen)
         
-        print(Blue_x_cen)
-        print(Yello_x_cen)
-        
+      
+
         original_img = cv_image.copy()
         h,w,c = original_img.shape
         empty_img = np.zeros((h,w,c),np.uint8())
@@ -117,26 +114,10 @@ class Track_lanenet_detector():
         empty_img2 = cv2.resize(empty_img, (640, 480), interpolation=cv2.INTER_LINEAR)
         out_img_msg = self.bridge.cv2_to_imgmsg(empty_img2, "8UC3")
         self.pub_image.publish(out_img_msg)
+        print(1/(time.time() - t1)) 
         
-        
-    def preprocessing(self, img): 
-        image = cv2.resize(img, (512, 256), interpolation=cv2.INTER_LINEAR) 
-        image = image / 127.5 
 
     
-
-    def minmax_scale(self, input_arr):
-        """
-
-        :param input_arr:
-        :return:
-        """
-        min_val = np.min(input_arr)
-        max_val = np.max(input_arr)
-
-        output_arr = (input_arr - min_val) * 255.0 / (max_val - min_val)
-
-        return output_arr
 
     def Cone_information(self,data):
     #print(data) 
@@ -173,6 +154,16 @@ class Track_lanenet_detector():
             y_cens.append(y_cen)
         #print(x_cens,y_cens)
         return x_cens,y_cens
+
+
+    def sort_x_y_pixel(self,x_cord,y_cord):
+        cordination = []
+        for elem_x,elem_y in zip(x_cord,y_cord):
+            cordination.append([elem_x,elem_y])
+        cordination = sorted(cordination, key = lambda x: x[0])
+        x = [i[0] for i in cordination]
+        y = [i[1] for i in cordination]
+        return x,y
 
 if __name__ == '__main__':
     # init args
